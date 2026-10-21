@@ -1,0 +1,10 @@
+numpy
+scipy
+pandas
+scikit-learn
+matplotlib
+mne
+pyriemann
+braindecode
+moabb
+pytest

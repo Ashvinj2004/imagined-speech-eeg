@@ -18,6 +18,7 @@ pip install -r requirements.txt   # or, to reproduce exactly: pip install -r req
 pip install -e .
 python -m pytest -q
 python scripts/smoke_test.py
+python scripts/check_env.py      # compare this output across all four laptops
 ```
 
 **Windows Smart App Control / Application Control:** if imports fail with
@@ -37,6 +38,9 @@ src/bci/
   eval/harness.py          evaluate(), summarize(), permutation_null()
   models/                  model factories: majority(), riemann_ts_lr()
 scripts/smoke_test.py      end-to-end check on synthetic data
+scripts/check_env.py       package versions + dataset shape (Sprint 1 gate)
+notebooks/                 exploration only; reported numbers come from the harness
+.github/workflows/         CI: env check, pytest and smoke test on every PR
 tests/                     pytest suite
 docs/LEAKAGE_CHECKLIST.md  rules -> enforcement table, team sign-off
 results/LOG.md             one row per real experiment

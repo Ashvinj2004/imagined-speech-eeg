@@ -33,16 +33,20 @@ CLAUDE.md                  project rules for every session (humans and AI)
 src/bci/
   data/base.py             EpochsDataset (data contract) + loader registry (@register, load)
   data/synthetic.py        "synthetic" dataset: plumbing tests only, never reported
+  data/track3.py           "track3": BCI Competition 2020 Track 3 (5 imagined phrases, 15 subjects)
+  data/nieto.py            "nieto": Nieto et al. 2022 inner speech (4 directions, 10 subjects x 3 sessions)
   eval/chance_level.py     binomial chance threshold, binomial / permutation p-values
   eval/splits.py           within_subject, cross_session, loso, predefined + leakage checker
   eval/harness.py          evaluate(), summarize(), permutation_null()
   models/                  model factories: majority(), riemann_ts_lr()
+scripts/download_data.py   fetch Track 3 (~0.6 GB) and Nieto (~6.7 GB) into data/
 scripts/smoke_test.py      end-to-end check on synthetic data
 scripts/check_env.py       package versions + dataset shape (Sprint 1 gate)
 notebooks/                 exploration only; reported numbers come from the harness
 .github/workflows/         CI: env check, pytest and smoke test on every PR
 tests/                     pytest suite
 docs/LEAKAGE_CHECKLIST.md  rules -> enforcement table, team sign-off
+docs/DATASETS.md           what each dataset contains, where it comes from, and its traps
 results/LOG.md             one row per real experiment
 ```
 

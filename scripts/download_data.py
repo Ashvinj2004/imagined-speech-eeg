@@ -15,6 +15,7 @@ Sources
 from __future__ import annotations
 
 import re
+import shutil
 import sys
 import time
 import urllib.parse
@@ -23,7 +24,8 @@ import urllib.request
 from pathlib import Path
 
 DATA = Path(__file__).resolve().parents[1] / "data"
-OPENNEURO_S3 = "https://s3.amazonaws.com/openneuro.org"
+OPENNEURO_S3 = "https://s3.amazonaws.com/openneuro.org"  # used for listing files and sizes
+OPENNEURO_FILES = "https://openneuro.org/crn/datasets/ds003626/files"  # faster per connection, supports resume
 
 
 def download_track3() -> Path:
@@ -52,32 +54,44 @@ def download_nieto() -> Path:
     target = DATA / "nieto2022"
     wanted = [("ds003626/dataset_description.json", None), ("ds003626/README", None)]
     wanted += [(k, s) for k, s in _s3_list("ds003626/derivatives/") if k.endswith(("_eeg-epo.fif", "_events.dat"))]
-    # Small files first so the events/labels are available early; S3 throttles each connection,
-    # so fetch several files at once.
+    # Small files first so the events/labels are available early. The servers throttle each
+    # connection, so fetch several files at once, and resume partial files after interruptions.
     wanted.sort(key=lambda ks: ks[1] or 0)
     total = sum(s or 0 for _, s in wanted)
     print(f"nieto: {len(wanted)} files, {total / 1e9:.2f} GB", flush=True)
 
     def fetch(item: tuple[str, int | None]) -> None:
         key, size = item
-        dest = target / key.removeprefix("ds003626/")
+        rel = key.removeprefix("ds003626/")
+        dest = target / rel
         if dest.exists() and (size is None or dest.stat().st_size == size):
             return
         dest.parent.mkdir(parents=True, exist_ok=True)
         tmp = dest.with_suffix(dest.suffix + ".part")
-        for attempt in range(1, 6):  # S3 sometimes drops long connections; retry with backoff
+        url = f"{OPENNEURO_FILES}/{rel.replace('/', ':')}"
+        for attempt in range(1, 11):  # connections drop on long transfers; resume with backoff
             try:
-                urllib.request.urlretrieve(f"{OPENNEURO_S3}/{key}", tmp)
+                have = tmp.stat().st_size if tmp.exists() else 0
+                if size is not None and have > size:
+                    tmp.unlink()
+                    have = 0
+                if size is None or have < size:
+                    req = urllib.request.Request(url, headers={"Range": f"bytes={have}-"} if have else {})
+                    with urllib.request.urlopen(req, timeout=120) as resp:
+                        if have and resp.status != 206:  # server ignored the range: start over
+                            have = 0
+                        with open(tmp, "ab" if have else "wb") as f:
+                            shutil.copyfileobj(resp, f, length=1 << 20)
                 if size is not None and tmp.stat().st_size != size:
-                    raise OSError(f"size mismatch for {key}: got {tmp.stat().st_size}, expected {size}")
+                    raise OSError(f"incomplete {rel}: {tmp.stat().st_size} of {size} bytes")
                 break
-            except OSError as e:  # URLError, RemoteDisconnected and size mismatches are all OSErrors
-                if attempt == 5:
+            except OSError as e:  # URLError, RemoteDisconnected, timeouts and short files are all OSErrors
+                if attempt == 10:
                     raise
-                print(f"  retry {attempt} for {key}: {e}", flush=True)
-                time.sleep(10 * attempt)
+                print(f"  retry {attempt} for {rel}: {e}", flush=True)
+                time.sleep(min(60, 10 * attempt))
         tmp.replace(dest)
-        print(f"  done {key} ({(size or 0) / 1e6:.0f} MB)", flush=True)
+        print(f"  done {rel} ({(size or 0) / 1e6:.0f} MB)", flush=True)
 
     with ThreadPoolExecutor(max_workers=8) as pool:
         for _ in pool.map(fetch, wanted):

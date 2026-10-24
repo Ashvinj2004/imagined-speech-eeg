@@ -29,6 +29,7 @@ Load them with `bci.data.load("track3")` / `bci.data.load("nieto")`.
 | Subjects / sessions | 10 / 3 sessions ("blocks") each, so the cross-session protocol is possible |
 | Channels, rate | 128 EEG channels (BioSemi 128 montage) + 8 EXG, recorded at 1024 Hz; authors' epochs are decimated ×4 to 256 Hz |
 | Epochs | −0.5 s to 4 s around the cue; the authors recommend the 1.0–3.5 s window (the "action interval") |
+| Trials | 5,640 in total; **2,236 inner-speech trials** (559 per class), 180–240 per subject. Sessions are uneven: some third sessions are half-length (sub-01, sub-03, sub-06, sub-08), and sub-03's sessions 1 and 3 have an unusual condition mix |
 | Source | OpenNeuro [ds003626](https://openneuro.org/datasets/ds003626); code: https://github.com/N-Nieto/Inner_Speech_Dataset |
 | Paper | Nieto et al. (2022), *Scientific Data* 9:52 |
 

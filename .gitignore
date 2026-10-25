@@ -218,3 +218,21 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- imagined-speech-eeg project rules ---
+# Data never goes in git (public datasets are downloaded locally)
+/data/
+/cache/
+# Raw EEG / array formats
+*.mat
+*.fif
+*.edf
+*.bdf
+*.set
+*.fdt
+*.npz
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+*.ckpt

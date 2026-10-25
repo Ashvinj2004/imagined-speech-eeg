@@ -13,7 +13,7 @@ Python 3.11. On Windows (Git Bash shown; in PowerShell use `.venv\Scripts\Activa
 ```bash
 py -3.11 -m venv .venv            # or: python3.11 -m venv .venv
 source .venv/Scripts/activate     # Linux/macOS: source .venv/bin/activate
-pip install torch --index-url https://download.pytorch.org/whl/cpu   # CPU torch; skip if you have a CUDA GPU and want the GPU build
+pip install torch==2.11.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cpu   # CPU builds; versions must match
 pip install -r requirements.txt   # or, to reproduce exactly: pip install -r requirements.lock
 pip install -e .
 python -m pytest -q

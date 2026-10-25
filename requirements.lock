@@ -94,7 +94,7 @@ soundfile==0.14.0
 sympy==1.14.0
 tabulate==0.10.0
 threadpoolctl==3.7.0
-torch==2.14.1+cpu
+torch==2.11.0+cpu
 torch-einops-utils==0.1.37
 torchaudio==2.11.0
 torchinfo==1.8.0

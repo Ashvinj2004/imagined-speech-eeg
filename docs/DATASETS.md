@@ -3,7 +3,10 @@
 Download both with `python scripts/download_data.py` (files land in `data/`, which is gitignored).
 Load them with `bci.data.load("track3")` / `bci.data.load("nieto")`.
 
-## BCI Competition 2020 Track 3 (`track3`), our reproduction anchor
+**Decision (2026-10-25):** the primary task is Track 3's five phrases. Nieto inner speech is the
+second dataset, used to check that results hold elsewhere and for cross-session evaluation.
+
+## BCI Competition 2020 Track 3 (`track3`), primary target and reproduction anchor
 
 | | |
 |---|---|

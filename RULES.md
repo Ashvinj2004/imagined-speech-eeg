@@ -6,6 +6,10 @@ from **non-invasive EEG**, using **public datasets only**. 4-person undergraduat
 Goal: a methodologically rigorous study that honestly measures a modest effect.
 **55-70% on 2-5 classes is success. 95% almost always means data leakage.**
 
+**Primary target (decided 2026-10-25, Sprint 1):** BCI Competition 2020 Track 3, five imagined phrases
+(Hello, Help me, Stop, Thank you, Yes), using its predefined train/val/test splits. Nieto et al. 2022
+(inner-speech condition, 4 directions) is the second dataset and the only one with a cross-session protocol.
+
 ## The rules (non-negotiable)
 
 1. **No data leakage.**

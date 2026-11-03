@@ -83,10 +83,13 @@ def plot_null(observed: float, null: np.ndarray, p: float, title: str, path: Pat
 
 
 def git_commit() -> str:
-    """Short commit hash, with '-dirty' when the working tree has uncommitted changes to tracked files."""
+    """Short commit hash, with '-dirty' when tracked files have uncommitted changes.
+
+    results/LOG.md itself is ignored: it changes with every run and is not code."""
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
-        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", ".", ":!results/LOG.md"],
+                               cwd=ROOT, capture_output=True, text=True).stdout.strip()
         return sha + ("-dirty" if dirty else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"

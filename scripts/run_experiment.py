@@ -57,6 +57,8 @@ def main(argv=None) -> int:
     ap.add_argument("--n-perm", type=int, default=0, help="label shuffles for the permutation test (0 = skip)")
     ap.add_argument("--resample", type=float, default=None,
                     help="target sampling rate in Hz; default 128 for neural networks, unchanged otherwise")
+    ap.add_argument("--l-freq", type=float, default=None, help="override the band-pass low edge (Hz)")
+    ap.add_argument("--h-freq", type=float, default=None, help="override the band-pass high edge (Hz)")
     ap.add_argument("--max-epochs", type=int, default=None, help="neural networks only")
     ap.add_argument("--final", action="store_true", help="allow protocols that use the held-out test split")
     args = ap.parse_args(argv)
@@ -73,6 +75,10 @@ def main(argv=None) -> int:
     resample = args.resample if args.resample is not None else (128.0 if args.model in DEEP else None)
     if resample is not None:
         cfg = replace(cfg, resample_hz=resample)
+    if args.l_freq is not None:
+        cfg = replace(cfg, l_freq=args.l_freq)
+    if args.h_freq is not None:
+        cfg = replace(cfg, h_freq=args.h_freq)
     ds = preprocess(raw, cfg)
     print(ds.summary())
     print(f"preprocessing: {cfg}")

@@ -236,3 +236,5 @@ checkpoints/
 *.pt
 *.pth
 *.ckpt
+# Generated figures (regenerate with scripts/)
+/results/figures/

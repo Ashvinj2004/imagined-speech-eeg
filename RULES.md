@@ -51,6 +51,8 @@ Goal: a methodologically rigorous study that honestly measures a modest effect.
 - `src/bci/data/track3.py`, `src/bci/data/nieto.py`: real-data loaders (`"track3"`, `"nieto"`); data comes from
   `scripts/download_data.py` into the gitignored `data/`. Dataset facts and traps: `docs/DATASETS.md`.
   Never unpickle downloaded files with plain `pickle`/`np.load(allow_pickle=True)`; see `nieto._ArrayOnlyUnpickler`.
+- `src/bci/preprocess.py`: fixed per-trial filters (`preprocess(ds, cfg)`: average reference, notch, band-pass,
+  resample); per-dataset defaults in `DEFAULTS`. `scripts/plot_psd.py` draws the before/after spectrum.
 - `src/bci/eval/chance_level.py`: binomial chance threshold, binomial and permutation p-values.
 - `src/bci/eval/splits.py`: `within_subject`, `cross_session`, `loso`, `predefined` splitters; all folds pass `check_no_leakage`.
 - `src/bci/eval/harness.py`: `evaluate(make_model, ds, protocols)`, `summarize(df)`, `permutation_null(...)`.

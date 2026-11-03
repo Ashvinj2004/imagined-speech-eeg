@@ -17,7 +17,23 @@ second dataset, used to check that results hold elsewhere and for cross-session 
 | Source | Organisers' OSF project https://osf.io/pq7vb/. Its Track 3 folder now holds only a readme, so we use the BIDS/EDF conversion on NEMAR, [nm000113](https://nemar.org/dataset/nm000113) (converted by P. Guetschel; test labels from the official answer sheet) |
 | Paper | Jeong et al. (2022), "2020 International brain–computer interface competition: A review", *Front. Hum. Neurosci.* 16:898300 |
 
+**Paradigm** (from the Jeong et al. 2022 review)
+- Per cue: an auditory cue of the phrase (2 s), then a fixation cross (0.8–1.2 s); imagery starts when the
+  cross disappears. Each cue is followed by **four** cross-then-imagery phases of about 2 s, then 3 s of rest.
+- 70 trials per class were recorded (60 train, 10 validation, 10 test). Recorded with a BrainAmp amplifier,
+  64 electrodes in the 10-20 layout, ground at Fpz, reference at FCz, impedance below 15 kΩ.
+- Each epoch in the public data is 795 samples (3.11 s at 256 Hz).
+- Published competition results: best 82.6%, second 75.5% (methods not named in the review).
+- Mains frequency: **60 Hz** (recorded in Korea). Confirmed by a clear 60 Hz spike in the raw spectrum
+  (`scripts/plot_psd.py`), which our default preprocessing removes.
+
 **Gotchas**
+- **Repeated cues may be correlated.** The four imagery phases after one cue are probably separate trials,
+  and repetitions of the same cue are likely more alike than independent trials. The public files do not
+  mark which trials share a cue, and the stored order does not reveal it (labels look shuffled for some
+  subjects, e.g. sub-01 and sub-05, and come in long same-label runs for others, e.g. sub-12). So our own
+  within-subject cross-validation on this dataset may be **optimistic**; the organisers' predefined split
+  is the reference result. Treat within-subject CV numbers on Track 3 as an upper bound.
 - The test split is tiny: 50 trials per subject. The chance threshold for n=50 and k=5 is 30%, not 20%, and per-subject numbers are noisy. Report pooled numbers alongside the per-subject spread.
 - The test labels came out after the competition. Never tune on `split == "test"`: tune on train/val, then touch test once per final configuration.
 - The NEMAR copy concatenated the original epochs into continuous EDF files; the loader cuts them back out using the annotation onsets and durations. Units were converted to Volts by the converter; the loader returns microvolts.

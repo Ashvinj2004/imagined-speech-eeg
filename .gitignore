@@ -238,3 +238,5 @@ checkpoints/
 *.ckpt
 # Generated figures (regenerate with scripts/)
 /results/figures/
+# Experiment outputs (figures, CSVs); the results log itself is committed
+/results/runs/

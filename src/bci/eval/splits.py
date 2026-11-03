@@ -100,12 +100,27 @@ def predefined(ds: EpochsDataset) -> Iterator[Fold]:
         yield check_no_leakage(ds, Fold("predefined", f"subject={s}", s, tr, te))
 
 
+def predefined_val(ds: EpochsDataset) -> Iterator[Fold]:
+    """Per subject: train on split == train, test on split == val. For choosing settings;
+    never reads split == test, so the official test set stays untouched until the final run."""
+    if ds.split is None:
+        raise ValueError("predefined_val protocol needs ds.split")
+    for s in np.unique(ds.subject):
+        m = ds.subject == s
+        tr = np.flatnonzero(m & (ds.split == "train"))
+        te = np.flatnonzero(m & (ds.split == "val"))
+        yield check_no_leakage(ds, Fold("predefined_val", f"subject={s}", s, tr, te))
+
+
 PROTOCOLS = {
     "within_subject": within_subject,
     "cross_session": cross_session,
     "loso": loso,
     "predefined": predefined,
+    "predefined_val": predefined_val,
 }
+# Protocols whose test side is a dataset's held-out test split. Running one is a "final" result.
+TEST_SET_PROTOCOLS = {"predefined"}
 
 
 def get_folds(ds: EpochsDataset, protocol: str, seed: int = 0) -> Iterator[Fold]:

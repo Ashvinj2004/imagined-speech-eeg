@@ -24,7 +24,8 @@ python scripts/check_env.py      # compare this output across all four laptops
 **Windows Smart App Control / Application Control:** if imports fail with
 `DLL load failed ... An Application Control policy has blocked this file`, Windows is blocking a
 compiled package. We pin `pillow==11.3.0` in `requirements.lock` because newer builds were blocked on
-one team machine. `torch` may also be blocked; Sprint 1 does not need it (only `braindecode` models will).
+one team machine. `torch` may also be blocked, which stops `braindecode` (the neural-network models); the only
+fixes are allowing it in Windows Security or running the project inside WSL2.
 
 ## Repo layout
 
@@ -35,6 +36,7 @@ src/bci/
   data/synthetic.py        "synthetic" dataset: plumbing tests only, never reported
   data/track3.py           "track3": BCI Competition 2020 Track 3 (5 imagined phrases, 15 subjects)
   data/nieto.py            "nieto": Nieto et al. 2022 inner speech (4 directions, 10 subjects x 3 sessions)
+  preprocess.py            fixed per-trial filters: average reference, notch, band-pass, resample
   eval/chance_level.py     binomial chance threshold, binomial / permutation p-values
   eval/splits.py           within_subject, cross_session, loso, predefined + leakage checker
   eval/harness.py          evaluate(), summarize(), permutation_null()

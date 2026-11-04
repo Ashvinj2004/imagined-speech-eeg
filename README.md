@@ -49,6 +49,7 @@ notebooks/                 exploration only; reported numbers come from the harn
 tests/                     pytest suite
 docs/LEAKAGE_CHECKLIST.md  rules -> enforcement table, team sign-off
 docs/DATASETS.md           what each dataset contains, where it comes from, and its traps
+docs/RESULTS.md            results so far, with interpretation and open questions
 results/LOG.md             one row per real experiment
 ```
 

@@ -30,16 +30,23 @@ def evaluate(
     protocols: Iterable[str] = DEFAULT_PROTOCOLS,
     seed: int = 0,
     alpha: float = 0.05,
-) -> pd.DataFrame:
-    """One row per fold: protocol, held_out, n_train, n_test, acc, bal_acc, 1/k, chance threshold, binomial p."""
+    return_predictions: bool = False,
+):
+    """One row per fold: protocol, held_out, n_train, n_test, acc, bal_acc, 1/k, chance threshold, binomial p.
+
+    With `return_predictions=True`, returns `(df, predictions)`: one row per test trial with
+    protocol, subject, trial index, y_true and y_pred, for confusion matrices and per-subject reports.
+    """
     k = ds.n_classes
-    rows = []
+    rows, preds = [], []
     for protocol in protocols:
         for fold in get_folds(ds, protocol, seed=seed):
             model = make_model()
             model.fit(ds.X[fold.train_idx], ds.y[fold.train_idx])
             y_true = ds.y[fold.test_idx]
             y_pred = np.asarray(model.predict(ds.X[fold.test_idx]))
+            preds.append(pd.DataFrame({"protocol": protocol, "subject": fold.subject, "trial": fold.test_idx,
+                                       "y_true": y_true, "y_pred": y_pred}))
             n_test = len(y_true)
             n_correct = int((y_pred == y_true).sum())
             rows.append(
@@ -61,6 +68,8 @@ def evaluate(
     df.attrs["n_classes"] = k
     df.attrs["seed"] = seed
     df.attrs["alpha"] = alpha
+    if return_predictions:
+        return df, pd.concat(preds, ignore_index=True) if preds else pd.DataFrame()
     return df
 
 

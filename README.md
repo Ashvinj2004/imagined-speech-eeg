@@ -43,6 +43,8 @@ src/bci/
   models/                  model factories: majority(), riemann_ts_lr()
 scripts/download_data.py   fetch Track 3 (~0.6 GB) and Nieto (~6.7 GB) into data/
 scripts/build_tables.py    builds the report tables from results/LOG.md
+scripts/run_ablations.py   Sprint 4 ablations: band sweep, alignment, crops
+scripts/demo.py            replays held-out trials one at a time with a running score
 scripts/smoke_test.py      end-to-end check on synthetic data
 scripts/check_env.py       package versions + dataset shape (Sprint 1 gate)
 notebooks/                 exploration only; reported numbers come from the harness
@@ -51,6 +53,7 @@ tests/                     pytest suite
 docs/LEAKAGE_CHECKLIST.md  rules -> enforcement table, team sign-off
 docs/DATASETS.md           what each dataset contains, where it comes from, and its traps
 docs/RESULTS.md            results so far, with interpretation and open questions
+docs/DATASET_CARDS.md      datasheet per dataset: source, licence, processing, known issues
 results/LOG.md             one row per real experiment
 ```
 

@@ -4,6 +4,7 @@ Anything that learns from data must live inside the returned estimator so the ha
 on the training fold only.
 """
 
+from bci.models.alignment import riemann_ea_lr
 from bci.models.baselines import majority, riemann_ts_lr
 
 
@@ -19,4 +20,4 @@ def shallow_convnet(**kwargs):
     return _shallow(**kwargs)
 
 
-__all__ = ["majority", "riemann_ts_lr", "eegnet", "shallow_convnet"]
+__all__ = ["majority", "riemann_ts_lr", "riemann_ea_lr", "eegnet", "shallow_convnet"]

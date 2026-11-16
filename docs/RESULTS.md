@@ -37,7 +37,43 @@ Pooled chance threshold for n = 750: **0.224** (1/k = 0.200). Per-subject thresh
 - The competition's 82.6% is not a reproducible target: the review does not say which split it was
   measured on, and later re-analyses did not reproduce it.
 
-### Open questions (for Sprints 3–4)
+## Sprint 3: all three protocols, both datasets
+
+### Track 3, cross-subject (LOSO)
+
+Riemannian (0.5–30 Hz), train on 14 people, test on the 15th: **0.199** pooled over 6,000 trials
+(chance threshold 0.208, binomial p = 0.59). Per-subject range 0.172–0.228; 0/15 above their own
+threshold (0.233 for n = 400). The same model and data gave 0.404 within-subject.
+
+No shuffle test was run here: the result is at chance, so shuffled labels would score the same;
+the binomial p already answers the question.
+
+### Nieto, inner speech (4 words, n = 2,236)
+
+| Model | Within-subject (5-fold) | Cross-session | LOSO |
+|---|---|---|---|
+| Majority class | 0.249 | 0.250 | 0.250 |
+| Riemannian (0.5–40 Hz) | 0.224 | 0.263 | 0.247 |
+| ShallowConvNet | pending | | |
+
+Chance threshold 0.265 for n = 2,236 (1/k = 0.250). Nothing is above it. The within-subject value
+below 1/k is noise, not an artefact: predictions are spread evenly over the four classes
+(587/529/558/562), per-person accuracies run 0.19–0.31, and single folds (≈45 trials) swing from
+0.06 to 0.44. Cross-session, the only such measurement in the project, is also at chance.
+
+### What we conclude from Sprint 3
+
+- **The Track 3 effect is person-specific.** The 0.404 → 0.199 drop is the central finding: covariance
+  features carry no information that transfers to a new person with this method.
+- **The effect does not reappear on a second dataset.** On Nieto's inner-speech trials the same model is
+  at chance in every protocol, consistent with the dataset authors' own report and with the 2026
+  re-analysis. Possible reasons, not yet separated: a harder task (four short direction words vs five
+  phrases of different length), a different montage (128 channels, BioSemi), the authors' broader
+  preprocessing, or simply no usable signal in this kind of covariance feature.
+- Together with the phrase-length pattern on Track 3, this strengthens the suspicion that part of the
+  Track 3 within-subject accuracy reflects phrase duration/rhythm rather than word identity.
+
+### Open questions (for Sprint 4)
 
 1. **Muscle contribution below 30 Hz.** Track 3 has no muscle (EMG) channel. A frequency-band ablation
    (e.g. 1–8, 8–13, 13–30 Hz separately) will show where the information sits.

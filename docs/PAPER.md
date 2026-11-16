@@ -12,8 +12,10 @@ cross-subject results are reported separately. On BCI Competition 2020 Track 3 (
 five phrases), a Riemannian tangent-space classifier reaches 40.4% on the official test split
 (chance threshold 22.4%; label-shuffle p = 0.0099), while two convolutional networks reach 25.7%
 and 28.5%. The same classifier is at chance (19.9%, threshold 20.8%) when the test participant is
-held out. TODO: Nieto cross-session and LOSO; band ablation. We conclude that a small, person-specific
-effect is reliably detectable, that it does not transfer across people with these methods, and that
+held out. On Nieto et al. 2022 (10 participants, four imagined words, three sessions) the same
+classifier is at chance within subject, across sessions and across participants. TODO: band
+ablation. We conclude that a small, person-specific effect is reliably detectable on one dataset,
+that it does not transfer across people or reappear on a second dataset with these methods, and that
 part of the within-subject effect may reflect phrase length or non-cortical sources rather than
 word identity.
 
@@ -83,12 +85,22 @@ over 100 shuffles, p = 0.0099.
 
 ### 4.2 Track 3, cross-subject (LOSO)
 
-Riemannian (0.5-30 Hz): **0.199** pooled over 6,000 trials, threshold 0.208; 0/15 participants
-above their own threshold (range 0.172-0.228). TODO: shuffle p.
+Riemannian (0.5-30 Hz): **0.199** pooled over 6,000 trials, threshold 0.208, binomial p = 0.59;
+0/15 participants above their own threshold (range 0.172-0.228). No shuffle test was run on a
+chance-level result.
 
-### 4.3 Nieto, three protocols
+### 4.3 Nieto, three protocols (4 words, n = 2,236, threshold 0.265)
 
-TODO (within-subject, cross-session, LOSO; Riemannian, majority, ShallowConvNet within-subject).
+| Model | Within-subject | Cross-session | LOSO |
+|---|---|---|---|
+| Majority class | 0.249 | 0.250 | 0.250 |
+| Riemannian (0.5-40 Hz) | 0.224 | 0.263 | 0.247 |
+| ShallowConvNet | TODO | | |
+
+No cell exceeds the threshold. Predictions are balanced across classes and per-participant
+accuracies span 0.19-0.31, so the sub-1/k within-subject value is sampling noise, not a
+classifier artefact. The cross-session result is the project's only measurement of day-to-day
+transfer, and it is at chance.
 
 ### 4.4 Ablations
 

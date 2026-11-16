@@ -240,3 +240,5 @@ checkpoints/
 /results/figures/
 # Experiment outputs (figures, CSVs); the results log itself is committed
 /results/runs/
+# Tables are regenerated from results/LOG.md by scripts/build_tables.py
+/results/tables/

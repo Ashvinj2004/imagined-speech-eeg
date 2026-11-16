@@ -60,6 +60,7 @@ def main(argv=None) -> int:
     ap.add_argument("--l-freq", type=float, default=None, help="override the band-pass low edge (Hz)")
     ap.add_argument("--h-freq", type=float, default=None, help="override the band-pass high edge (Hz)")
     ap.add_argument("--max-epochs", type=int, default=None, help="neural networks only")
+    ap.add_argument("--variant", default="", help="ablation tag written to the log, e.g. band, ea, crops")
     ap.add_argument("--final", action="store_true", help="allow protocols that use the held-out test split")
     args = ap.parse_args(argv)
 
@@ -112,7 +113,8 @@ def main(argv=None) -> int:
             perm_note = f" perm_p={p:.4f} (n={args.n_perm})"
 
         config = (f"{args.model}; notch={cfg.notch_hz} bp={cfg.l_freq}-{cfg.h_freq} reref={cfg.reref} "
-                  f"fs={ds.sfreq:g}" + (f" max_epochs={args.max_epochs}" if args.max_epochs else "") + perm_note)
+                  f"fs={ds.sfreq:g}" + (f" max_epochs={args.max_epochs}" if args.max_epochs else "")
+                  + (f" variant={args.variant}" if args.variant else "") + perm_note)
         if args.dataset == "synthetic":
             print(f"[not logged: synthetic] {proto}: acc={row['acc']:.3f}")
         elif ds.n_classes >= 3 and row["acc"] > LEAKAGE_SUSPICION_ACC:

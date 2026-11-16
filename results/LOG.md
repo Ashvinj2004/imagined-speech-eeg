@@ -22,3 +22,4 @@ Any acc > 0.90 on 3+ classes must not be logged until leakage has been ruled out
 | 2026-11-17 | 45d1f96 | nieto2022-inner | majority; notch=None bp=0.5-40.0 reref=None fs=256 | within_subject | 0 | 2236 | 0.249 | 0.265 |
 | 2026-11-17 | 45d1f96 | nieto2022-inner | majority; notch=None bp=0.5-40.0 reref=None fs=256 | cross_session | 0 | 2236 | 0.250 | 0.265 |
 | 2026-11-17 | 45d1f96 | nieto2022-inner | majority; notch=None bp=0.5-40.0 reref=None fs=256 | loso | 0 | 2236 | 0.250 | 0.265 |
+| 2026-11-17 | 398c18b | nieto2022-inner | shallow; notch=None bp=0.5-40.0 reref=None fs=128 | within_subject | 0 | 2236 | 0.235 | 0.265 |

@@ -54,7 +54,7 @@ the binomial p already answers the question.
 |---|---|---|---|
 | Majority class | 0.249 | 0.250 | 0.250 |
 | Riemannian (0.5–40 Hz) | 0.224 | 0.263 | 0.247 |
-| ShallowConvNet | pending | | |
+| ShallowConvNet (0.5–40 Hz, 128 Hz) | 0.235 | – | – |
 
 Chance threshold 0.265 for n = 2,236 (1/k = 0.250). Nothing is above it. The within-subject value
 below 1/k is noise, not an artefact: predictions are spread evenly over the four classes

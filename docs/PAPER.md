@@ -95,7 +95,7 @@ chance-level result.
 |---|---|---|---|
 | Majority class | 0.249 | 0.250 | 0.250 |
 | Riemannian (0.5-40 Hz) | 0.224 | 0.263 | 0.247 |
-| ShallowConvNet | TODO | | |
+| ShallowConvNet | 0.235 | - | - |
 
 No cell exceeds the threshold. Predictions are balanced across classes and per-participant
 accuracies span 0.19-0.31, so the sub-1/k within-subject value is sampling noise, not a

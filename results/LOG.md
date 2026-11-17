@@ -48,3 +48,6 @@ Any acc > 0.90 on 3+ classes must not be logged until leakage has been ruled out
 | 2026-11-17 | b2311d0 | nieto2022-inner | riemann_ea; notch=None bp=0.5-40.0 reref=None fs=256 variant=ea | loso | 0 | 2236 | 0.237 | 0.265 |
 | 2026-11-17 | b2311d0 | bci2020_track3 | riemann_ea; notch=60.0 bp=0.5-30.0 reref=average fs=256 variant=ea | predefined_val | 0 | 750 | 0.415 | 0.224 |
 | 2026-11-17 | b2311d0 | bci2020_track3 | riemann_ea; notch=60.0 bp=0.5-30.0 reref=average fs=256 variant=ea | loso | 0 | 6000 | 0.204 | 0.208 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=0.5-40.0 reref=None fs=256 crop=1/0.5s variant=crops | within_subject | 0 | 2236 | 0.239 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=0.5-40.0 reref=None fs=256 crop=1/0.5s variant=crops | cross_session | 0 | 2236 | 0.271 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=0.5-40.0 reref=None fs=256 crop=1/0.5s variant=crops | loso | 0 | 2236 | 0.242 | 0.265 |

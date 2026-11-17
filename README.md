@@ -56,6 +56,7 @@ docs/DATASETS.md           what each dataset contains, where it comes from, and 
 docs/RESULTS.md            results so far, with interpretation and open questions
 docs/DATASET_CARDS.md      datasheet per dataset: source, licence, processing, known issues
 docs/PAPER.md              paper draft; docs/POSTER.md: poster outline
+docs/METHODS_APPENDIX.md   exact settings behind every reported number
 results/LOG.md             one row per real experiment
 ```
 

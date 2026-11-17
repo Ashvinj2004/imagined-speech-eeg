@@ -16,7 +16,8 @@ held out. On Nieto et al. 2022 (10 participants, four imagined words, three sess
 classifier is at chance within subject, across sessions and across participants. A frequency-band
 ablation locates the Track 3 effect in the 30-40 Hz band (0.443 alone, above every wideband
 configuration), the range most exposed to muscle activity and one Track 3 cannot audit because it
-records no muscle channel. Euclidean Alignment does not lift cross-subject accuracy above chance.
+records no muscle channel. Neither Euclidean Alignment nor cropped training helps: alignment leaves
+cross-subject accuracy at chance, and cropping costs 2.8 points within subject.
 We conclude that a reliable, person-specific, task-locked effect is detectable on one dataset, that
 it does not transfer across people or reappear on a second dataset, and that its frequency profile
 and the phrase-length pattern together argue against reading it as decoded imagined-speech content.
@@ -136,7 +137,19 @@ participants.
 
 ### 4.6 Cropped training
 
-TODO.
+1 s windows every 0.5 s, all crops of a trial on one side of every split, majority vote per trial at
+test time (so `n_test` counts trials, not windows).
+
+| Dataset | Protocol | Baseline | +Crops | Threshold |
+|---|---|---|---|---|
+| Track 3 | train -> val | 0.415 | 0.387 | 0.224 |
+| Track 3 | LOSO | 0.199 | 0.200 | 0.208 |
+| Nieto | within-subject | 0.224 | 0.239 | 0.265 |
+| Nieto | cross-session | 0.263 | 0.271 | 0.265 |
+| Nieto | LOSO | 0.247 | 0.242 | 0.265 |
+
+Cropping lowers Track 3 within-subject accuracy by 2.8 points and leaves every other cell where it
+was. Five times as many training examples did not compensate for shortening each from 3.1 s to 1 s.
 
 ## 5. Discussion
 
@@ -160,6 +173,13 @@ which word was imagined. We therefore report the Track 3 within-subject number a
 person-specific, task-locked effect, and explicitly not as evidence that imagined-speech content was
 decoded.
 
+**Cropping points the same way.** Cutting trials into 1 s windows cost 2.8 points within subject
+(0.415 -> 0.387) despite five times the training examples. A representation that distinguished word
+identity moment to moment should tolerate shorter windows; one that tracks the duration or rhythm of
+an articulatory act should not, because cropping destroys exactly that structure. Together with the
+frequency profile and the phrase-length pattern, this is a third line of evidence pointing away from
+word-identity decoding.
+
 **Alignment does not transfer what is not shared.** Euclidean Alignment, which buys several points of
 cross-subject accuracy on motor imagery, changes nothing here (Track 3 LOSO 0.199 -> 0.204, still
 below threshold). Aligning coordinate frames can only help when a shared cross-subject pattern exists
@@ -178,9 +198,17 @@ rather than claim it as an advance.
 ## 6. Limitations and what we did not do
 
 - Two datasets, 25 participants in total; no own recordings.
-- Networks were trained on CPU with a fixed schedule; a wider search might change their ranking.
-- No per-participant embedding or contrastive model was attempted (compute).
+- Networks were trained on CPU with a fixed schedule; a wider search might change their ranking. The
+  networks were evaluated within subject only; the cross-subject and cross-session claims rest on the
+  Riemannian classifier, which was the strongest model wherever both were run.
+- No per-participant embedding or contrastive model was attempted. Each needs repeated
+  multi-hour network runs, which this project's single-CPU budget could not cover; the band ablation
+  was prioritised instead, and it turned out to be the more informative experiment.
 - Track 3's repeated-cue structure is unknown (see above).
+- The muscle interpretation is an inference from the frequency profile, not a measurement. Only a
+  recording with a simultaneous EMG channel could confirm or refute it; neither public dataset has one.
+- Ablations were run on the validation split and LOSO, never on the Track 3 test split, which was
+  touched once per model in Section 4.1 and not revisited.
 
 ## 7. Reproducibility
 

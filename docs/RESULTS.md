@@ -123,8 +123,30 @@ align. Here there is no shared signal to align, so aligning the coordinate frame
 
 ### Cropped training
 
-Running: 1 s windows every 0.5 s (4 crops per Nieto trial, 5 per Track 3 trial), with all crops of a
-trial kept on one side of every split and voted per trial at test time.
+1 s windows every 0.5 s (5 crops per 3.1 s Track 3 trial, 4 per 2.5 s Nieto trial). All crops of a
+trial stay on one side of every split, and at test time a trial's crops are combined by majority
+vote and counted once, so `n_test` is unchanged (750 / 6,000 / 2,236).
+
+| Dataset | Protocol | Baseline | +Crops | Threshold |
+|---|---|---|---|---|
+| Track 3 | train → val | 0.415 | **0.387** | 0.224 |
+| Track 3 | LOSO | 0.199 | 0.200 | 0.208 |
+| Nieto | within-subject | 0.224 | 0.239 | 0.265 |
+| Nieto | cross-session | 0.263 | 0.271 | 0.265 |
+| Nieto | LOSO | 0.247 | 0.242 | 0.265 |
+
+**Cropping costs accuracy on Track 3 and changes nothing on Nieto.** Five times the training
+examples did not compensate for shortening each one from 3.1 s to 1 s: within-subject accuracy fell
+by 2.8 points, and cross-subject stayed at chance.
+
+This fits the rest of the evidence. If the Track 3 effect tracks the *duration or rhythm* of an
+articulatory act, as the phrase-length pattern and the 30–40 Hz profile both suggest, then a 1 s
+window is the wrong unit: it cuts up exactly the longer-timescale structure the classifier was
+using. A feature that genuinely distinguished word identity moment to moment would survive cropping
+better than this.
+
+Cost note: the Track 3 crops run (30,000 windows, LOSO over 15 folds) took ~10 h on one laptop CPU,
+by far the most expensive run in the project, for a result that reduced accuracy.
 
 ### Open questions
 

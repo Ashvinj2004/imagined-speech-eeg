@@ -73,10 +73,44 @@ below 1/k is noise, not an artefact: predictions are spread evenly over the four
 - Together with the phrase-length pattern on Track 3, this strengthens the suspicion that part of the
   Track 3 within-subject accuracy reflects phrase duration/rhythm rather than word identity.
 
-### Open questions (for Sprint 4)
+## Sprint 4: ablations
 
-1. **Muscle contribution below 30 Hz.** Track 3 has no muscle (EMG) channel. A frequency-band ablation
-   (e.g. 1–8, 8–13, 13–30 Hz separately) will show where the information sits.
+### Frequency bands (Riemannian, one band at a time)
+
+| Band | Track 3 train → val (n=750, thr 0.224) | Track 3 LOSO (n=6000, thr 0.208) | Nieto within (thr 0.265) | Nieto cross-session | Nieto LOSO |
+|---|---|---|---|---|---|
+| 1–8 Hz | 0.311 | 0.208 | 0.233 | 0.246 | 0.268 |
+| 8–13 Hz | 0.291 | 0.197 | 0.251 | 0.275 | 0.230 |
+| 13–30 Hz | 0.403 | 0.201 | 0.234 | 0.270 | 0.259 |
+| 30–40 Hz | **0.443** | 0.198 | pending | | |
+| 0.5–30 Hz (reference) | 0.415 | 0.199 | | | |
+| 0.5–40 Hz (reference) | 0.405 | | 0.224 | 0.263 | 0.247 |
+
+**What this shows.**
+- On Track 3, accuracy *rises* with frequency: the 30–40 Hz band alone (0.443) beats the full 0.5–40 Hz
+  band (0.405) and the 0.5–30 Hz band (0.415). 13–30 Hz alone recovers almost everything (0.403);
+  the slow bands carry less (0.31, 0.29).
+- This is the signature the plan warned about. Cortical speech-related activity is usually reported in
+  the lower bands, while 30–40 Hz is where facial and jaw muscle activity (EMG) is strongest and Track 3
+  has no muscle channel to rule it out. The 2026 re-analysis saw the same rising profile and drew the
+  same conclusion. **We therefore do not read the Track 3 within-subject accuracy as evidence of
+  decoded imagined-speech content.** It is evidence of a reliable, person-specific signal that is
+  time-locked to the task and strongest in the muscle-exposed band.
+- Every band is at chance across people (LOSO), so whatever the signal is, it is not shared across people.
+- On Nieto, no band reaches the threshold in any protocol. The two cells just above it (8–13 Hz
+  cross-session 0.275, 1–8 Hz LOSO 0.268) are 2 of 12 cells within 0.01 of a 5% threshold, i.e. what
+  chance produces; without a shuffle test we treat them as noise.
+
+### Euclidean Alignment and cropped training
+
+Pending: the first attempt ran out of memory (another application held most of the laptop's RAM);
+rerun with the memory fix in `e8c6cb0`.
+
+### Open questions
+
+1. **Muscle contribution.** Answered as far as public data allows: the information concentrates in
+   30–40 Hz, the most EMG-exposed band, and Track 3 has no EMG channel. Only a dataset with a muscle
+   channel (e.g. own recordings with EMG) can settle it.
 2. **Phrase length.** "Help me" and "Thank you" were recognised best (0.48 each on validation), "Stop"
    worst (0.33). The re-analysis found phrases with different syllable counts separate more easily, so the
    model may partly detect speech duration or rhythm rather than the words themselves.

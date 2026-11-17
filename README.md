@@ -43,6 +43,7 @@ src/bci/
   models/                  model factories: majority(), riemann_ts_lr()
 scripts/download_data.py   fetch Track 3 (~0.6 GB) and Nieto (~6.7 GB) into data/
 scripts/build_tables.py    builds the report tables from results/LOG.md
+scripts/make_figures.py    builds the four presentation figures from results/LOG.md
 scripts/run_ablations.py   Sprint 4 ablations: band sweep, alignment, crops
 scripts/demo.py            replays held-out trials one at a time with a running score
 scripts/reproduce.py       reruns every headline experiment from a fresh clone, in order

@@ -185,8 +185,15 @@ rather than claim it as an advance.
 ## 7. Reproducibility
 
 `python scripts/reproduce.py` reruns every experiment in this paper from a fresh clone in the
-order listed; `python scripts/build_tables.py` regenerates the tables from the log. Seeds are fixed;
-the log records the commit of every run.
+order listed; `python scripts/build_tables.py` regenerates the tables in this paper from
+`results/LOG.md`. Seeds are fixed and the log records the commit of every run.
+
+Verified on 2026-11-17: a fresh `git clone` of this repository, with the datasets downloaded by
+`scripts/download_data.py`, passes the full test suite (71 tests; the 2 real-data loader tests skip
+when `data/` is absent, since data is never committed). Runtimes on one laptop CPU, for planning:
+Riemannian runs take minutes to ~1 h per protocol; each neural-network run takes 8-12 h; the
+Track 3 LOSO permutation test with 20 shuffles exceeded 8 h and was not used (a chance-level result
+needs no shuffle null).
 
 ## References
 

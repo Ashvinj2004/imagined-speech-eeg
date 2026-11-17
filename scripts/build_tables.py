@@ -27,7 +27,8 @@ PROTOCOL_LABEL = {
     "cross_session": "cross-session",
     "loso": "LOSO",
 }
-MODEL_LABEL = {"majority": "Majority class", "riemann": "Riemannian TS+LR", "eegnet": "EEGNet", "shallow": "ShallowConvNet"}
+MODEL_LABEL = {"majority": "Majority class", "riemann": "Riemannian TS+LR", "riemann_ea": "Riemannian TS+LR + EA",
+               "eegnet": "EEGNet", "shallow": "ShallowConvNet"}
 
 
 def read_log(path: Path = LOG) -> pd.DataFrame:
@@ -92,7 +93,13 @@ def ablation_table(df: pd.DataFrame) -> str:
         return "_No ablation rows yet._\n"
     out = ["| Dataset | Model | Variant | Band | " + " | ".join(PROTOCOL_LABEL[p] for p in PROTOCOL_ORDER) + " |",
            "|---|---|---|---|" + "---|" * len(PROTOCOL_ORDER)]
-    for (dataset, model, variant), g in abl.groupby(["dataset", "model", "variant"], sort=True):
+    # order bands by their low edge, not alphabetically (band1-8 before band8-13 before band13-30)
+    def key(row) -> tuple:
+        lo = re.match(r"band([\d.]+)-", row["variant"])
+        return (row["dataset"], float(lo.group(1)) if lo else 1e9, row["variant"])
+
+    abl = abl.assign(_k=abl.apply(key, axis=1)).sort_values("_k")
+    for (dataset, model, variant), g in abl.groupby(["dataset", "model", "variant"], sort=False):
         cells = []
         for p in PROTOCOL_ORDER:
             r = g[g["protocol"] == p]

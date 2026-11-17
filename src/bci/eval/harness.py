@@ -24,6 +24,23 @@ DEFAULT_PROTOCOLS = ("within_subject", "cross_session", "loso")
 LEAKAGE_SUSPICION_ACC = 0.9
 
 
+def _vote_per_trial(trial_ids, idx, y_true, y_pred):
+    """Collapse crops to one prediction per original trial (majority vote; ties -> lowest label).
+
+    Returns the first row index, true label and voted label per trial, in first-seen order."""
+    if len(np.unique(trial_ids)) == len(trial_ids):
+        return idx, y_true, y_pred
+    first = {}
+    votes = {}
+    for i, (t, yt, yp) in enumerate(zip(trial_ids, y_true, y_pred)):
+        first.setdefault(t, (idx[i], yt))
+        votes.setdefault(t, []).append(yp)
+    out_idx = np.array([first[t][0] for t in first])
+    out_true = np.array([first[t][1] for t in first])
+    out_pred = np.array([np.bincount(votes[t]).argmax() for t in first])
+    return out_idx, out_true, out_pred
+
+
 def evaluate(
     make_model: Callable[[], object],
     ds: EpochsDataset,
@@ -36,16 +53,26 @@ def evaluate(
 
     With `return_predictions=True`, returns `(df, predictions)`: one row per test trial with
     protocol, subject, trial index, y_true and y_pred, for confusion matrices and per-subject reports.
+
+    Models with `needs_subject = True` receive per-trial subject ids in fit and predict.
+    If the dataset holds crops (several rows sharing one trial_id), the crops of a test trial are
+    combined by majority vote and the trial is counted once, so n_test is the number of real trials.
     """
     k = ds.n_classes
     rows, preds = [], []
     for protocol in protocols:
         for fold in get_folds(ds, protocol, seed=seed):
             model = make_model()
-            model.fit(ds.X[fold.train_idx], ds.y[fold.train_idx])
-            y_true = ds.y[fold.test_idx]
-            y_pred = np.asarray(model.predict(ds.X[fold.test_idx]))
-            preds.append(pd.DataFrame({"protocol": protocol, "subject": fold.subject, "trial": fold.test_idx,
+            tr, te = fold.train_idx, fold.test_idx
+            if getattr(model, "needs_subject", False):
+                model.fit(ds.X[tr], ds.y[tr], subject=ds.subject[tr])
+                y_pred = np.asarray(model.predict(ds.X[te], subject=ds.subject[te]))
+            else:
+                model.fit(ds.X[tr], ds.y[tr])
+                y_pred = np.asarray(model.predict(ds.X[te]))
+            y_true = ds.y[te]
+            te, y_true, y_pred = _vote_per_trial(ds.trial_id[te], te, y_true, y_pred)
+            preds.append(pd.DataFrame({"protocol": protocol, "subject": fold.subject, "trial": te,
                                        "y_true": y_true, "y_pred": y_pred}))
             n_test = len(y_true)
             n_correct = int((y_pred == y_true).sum())

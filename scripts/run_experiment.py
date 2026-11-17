@@ -31,7 +31,8 @@ from bci.eval.chance_level import permutation_pvalue
 from bci.eval.harness import LEAKAGE_SUSPICION_ACC, evaluate, permutation_null, summarize
 from bci.eval.report import ROOT, append_log_row, git_commit, plot_confusion, plot_null, plot_per_subject
 from bci.eval.splits import TEST_SET_PROTOCOLS
-from bci.models import eegnet, majority, riemann_ts_lr, shallow_convnet
+from bci.data.crops import crop
+from bci.models import eegnet, majority, riemann_ea_lr, riemann_ts_lr, shallow_convnet
 from bci.preprocess import default_config, preprocess
 
 DEEP = {"eegnet", "shallow"}
@@ -42,6 +43,7 @@ def make_factory(name: str, seed: int, max_epochs: int | None):
     return {
         "majority": lambda: majority(),
         "riemann": lambda: riemann_ts_lr(seed=seed),
+        "riemann_ea": lambda: riemann_ea_lr(seed=seed),
         "eegnet": lambda: eegnet(seed=seed, **extra),
         "shallow": lambda: shallow_convnet(seed=seed, **extra),
     }[name]
@@ -50,7 +52,9 @@ def make_factory(name: str, seed: int, max_epochs: int | None):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", required=True, choices=["track3", "nieto", "synthetic"])
-    ap.add_argument("--model", required=True, choices=["majority", "riemann", "eegnet", "shallow"])
+    ap.add_argument("--model", required=True, choices=["majority", "riemann", "riemann_ea", "eegnet", "shallow"])
+    ap.add_argument("--crop", nargs=2, type=float, metavar=("WINDOW_S", "STEP_S"),
+                    help="cropped training: sliding windows per trial; crops are voted per trial at test time")
     ap.add_argument("--protocol", nargs="+", required=True)
     ap.add_argument("--subjects", nargs="*", type=int, help="default: all")
     ap.add_argument("--seed", type=int, default=0)
@@ -60,6 +64,7 @@ def main(argv=None) -> int:
     ap.add_argument("--l-freq", type=float, default=None, help="override the band-pass low edge (Hz)")
     ap.add_argument("--h-freq", type=float, default=None, help="override the band-pass high edge (Hz)")
     ap.add_argument("--max-epochs", type=int, default=None, help="neural networks only")
+    ap.add_argument("--variant", default="", help="ablation tag written to the log, e.g. band, ea, crops")
     ap.add_argument("--final", action="store_true", help="allow protocols that use the held-out test split")
     args = ap.parse_args(argv)
 
@@ -80,6 +85,8 @@ def main(argv=None) -> int:
     if args.h_freq is not None:
         cfg = replace(cfg, h_freq=args.h_freq)
     ds = preprocess(raw, cfg)
+    if args.crop:
+        ds = crop(ds, window_s=args.crop[0], step_s=args.crop[1])
     print(ds.summary())
     print(f"preprocessing: {cfg}")
 
@@ -112,7 +119,9 @@ def main(argv=None) -> int:
             perm_note = f" perm_p={p:.4f} (n={args.n_perm})"
 
         config = (f"{args.model}; notch={cfg.notch_hz} bp={cfg.l_freq}-{cfg.h_freq} reref={cfg.reref} "
-                  f"fs={ds.sfreq:g}" + (f" max_epochs={args.max_epochs}" if args.max_epochs else "") + perm_note)
+                  f"fs={ds.sfreq:g}" + (f" max_epochs={args.max_epochs}" if args.max_epochs else "")
+                  + (f" crop={args.crop[0]:g}/{args.crop[1]:g}s" if args.crop else "")
+                  + (f" variant={args.variant}" if args.variant else "") + perm_note)
         if args.dataset == "synthetic":
             print(f"[not logged: synthetic] {proto}: acc={row['acc']:.3f}")
         elif ds.n_classes >= 3 and row["acc"] > LEAKAGE_SUSPICION_ACC:

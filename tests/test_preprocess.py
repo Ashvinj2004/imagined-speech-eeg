@@ -71,6 +71,12 @@ def test_trials_are_processed_independently():
     assert not np.allclose(a[3], b[3])
 
 
+def test_chunking_does_not_change_output():
+    ds = _ds(_sines([10, 60], n_trials=7))
+    cfg = PreprocessConfig(notch_hz=60, resample_hz=128)
+    assert np.array_equal(preprocess(ds, cfg, chunk=2).X, preprocess(ds, cfg, chunk=100).X)
+
+
 def test_shape_metadata_and_determinism():
     ds = _ds(_sines([10, 60]))
     cfg = PreprocessConfig(notch_hz=60)

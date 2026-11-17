@@ -52,8 +52,10 @@ def default_config(ds: EpochsDataset) -> PreprocessConfig:
     return DEFAULTS[key] if key else PreprocessConfig()
 
 
-def preprocess(ds: EpochsDataset, cfg: PreprocessConfig | None = None) -> EpochsDataset:
-    """Return a new dataset with the fixed preprocessing applied; `ds` is left unchanged."""
+def preprocess(ds: EpochsDataset, cfg: PreprocessConfig | None = None, chunk: int = 256) -> EpochsDataset:
+    """Return a new dataset with the fixed preprocessing applied; `ds` is left unchanged.
+
+    `chunk` is how many trials are filtered at a time (memory only; the output does not depend on it)."""
     cfg = cfg or default_config(ds)
     fs = float(ds.sfreq)
     nyq = fs / 2
@@ -65,34 +67,41 @@ def preprocess(ds: EpochsDataset, cfg: PreprocessConfig | None = None) -> Epochs
     if cfg.reref not in (None, "average"):
         raise ValueError(f"unknown reref {cfg.reref!r}; use 'average' or None")
 
-    X = ds.X.astype(np.float64)
+    resample = cfg.resample_hz is not None and cfg.resample_hz != fs
+    if resample and (cfg.h_freq is None or cfg.h_freq >= cfg.resample_hz / 2):
+        raise ValueError("set h_freq below half the new sampling rate before resampling (avoids aliasing)")
+
     # padlen: how much mirrored signal is added at each end so filters don't distort trial edges
-    padlen = min(X.shape[-1] - 1, int(3 * fs))
-
-    if cfg.reref == "average":
-        X = X - X.mean(axis=1, keepdims=True)
-
-    if cfg.notch_hz is not None:
-        b, a = signal.iirnotch(cfg.notch_hz, cfg.notch_q, fs=fs)
-        X = signal.filtfilt(b, a, X, axis=-1, padtype="odd", padlen=padlen)
-
-    if cfg.l_freq is not None or cfg.h_freq is not None:
-        if cfg.l_freq is not None and cfg.h_freq is not None:
-            sos = signal.butter(cfg.filter_order, [cfg.l_freq, cfg.h_freq], btype="bandpass", fs=fs, output="sos")
-        elif cfg.l_freq is not None:
-            sos = signal.butter(cfg.filter_order, cfg.l_freq, btype="highpass", fs=fs, output="sos")
-        else:
-            sos = signal.butter(cfg.filter_order, cfg.h_freq, btype="lowpass", fs=fs, output="sos")
-        X = signal.sosfiltfilt(sos, X, axis=-1, padtype="odd", padlen=padlen)
-
-    if cfg.resample_hz is not None and cfg.resample_hz != fs:
-        if cfg.h_freq is None or cfg.h_freq >= cfg.resample_hz / 2:
-            raise ValueError("set h_freq below half the new sampling rate before resampling (avoids aliasing)")
+    padlen = min(ds.X.shape[-1] - 1, int(3 * fs))
+    notch = signal.iirnotch(cfg.notch_hz, cfg.notch_q, fs=fs) if cfg.notch_hz is not None else None
+    sos = None
+    if cfg.l_freq is not None and cfg.h_freq is not None:
+        sos = signal.butter(cfg.filter_order, [cfg.l_freq, cfg.h_freq], btype="bandpass", fs=fs, output="sos")
+    elif cfg.l_freq is not None:
+        sos = signal.butter(cfg.filter_order, cfg.l_freq, btype="highpass", fs=fs, output="sos")
+    elif cfg.h_freq is not None:
+        sos = signal.butter(cfg.filter_order, cfg.h_freq, btype="lowpass", fs=fs, output="sos")
+    if resample:
         up, down = int(round(cfg.resample_hz)), int(round(fs))
         g = gcd(up, down)
-        X = signal.resample_poly(X, up // g, down // g, axis=-1, padtype="line")
-        fs = float(cfg.resample_hz)
+        up, down = up // g, down // g
+
+    def process(X: np.ndarray) -> np.ndarray:
+        X = X.astype(np.float64)
+        if cfg.reref == "average":
+            X = X - X.mean(axis=1, keepdims=True)
+        if notch is not None:
+            X = signal.filtfilt(notch[0], notch[1], X, axis=-1, padtype="odd", padlen=padlen)
+        if sos is not None:
+            X = signal.sosfiltfilt(sos, X, axis=-1, padtype="odd", padlen=padlen)
+        if resample:
+            X = signal.resample_poly(X, up, down, axis=-1, padtype="line")
+        return X.astype(np.float32)
+
+    # Every step is per trial, so process in chunks: the float64 temporaries of a whole dataset
+    # (e.g. 6000 x 64 x 795) do not fit in memory on a laptop, and the result is identical.
+    out = np.concatenate([process(ds.X[i : i + chunk]) for i in range(0, ds.n_trials, chunk)])
 
     meta = dict(ds.meta)
     meta["preprocess"] = asdict(cfg)
-    return replace(ds, X=X.astype(np.float32), sfreq=fs, meta=meta)
+    return replace(ds, X=out, sfreq=float(cfg.resample_hz) if resample else fs, meta=meta)

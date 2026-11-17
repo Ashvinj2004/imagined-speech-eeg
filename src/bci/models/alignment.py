@@ -51,12 +51,17 @@ class EuclideanAlignedClassifier(ClassifierMixin, BaseEstimator):
             out[m] = _whiten(covs[m], refs[s])
         return out
 
+    def _covs(self, X) -> np.ndarray:
+        # Covariances in chunks of trials: a float64 copy of a whole dataset does not fit on a laptop.
+        return np.concatenate([self.cov_.transform(np.asarray(X[i : i + 256], dtype=np.float64))
+                               for i in range(0, len(X), 256)])
+
     def fit(self, X, y, subject=None):
         if subject is None:
             raise ValueError("EuclideanAlignedClassifier needs per-trial `subject` ids")
         subject = np.asarray(subject)
         self.cov_ = Covariances(estimator=self.estimator)
-        covs = self.cov_.fit_transform(np.asarray(X, dtype=np.float64))
+        covs = self._covs(X)
         self.refs_ = self._refs(covs, subject)
         self.clf_ = Pipeline([("ts", TangentSpace(metric="riemann")),
                               ("lr", LogisticRegression(C=self.C, max_iter=1000, random_state=self.seed))])
@@ -69,7 +74,7 @@ class EuclideanAlignedClassifier(ClassifierMixin, BaseEstimator):
         if subject is None:
             raise ValueError("EuclideanAlignedClassifier needs per-trial `subject` ids")
         subject = np.asarray(subject)
-        covs = self.cov_.transform(np.asarray(X, dtype=np.float64))
+        covs = self._covs(X)
         refs = dict(self.refs_)
         for s in np.unique(subject):
             if s not in refs:  # unseen person: unsupervised calibration from their own trials

@@ -13,11 +13,13 @@ five phrases), a Riemannian tangent-space classifier reaches 40.4% on the offici
 (chance threshold 22.4%; label-shuffle p = 0.0099), while two convolutional networks reach 25.7%
 and 28.5%. The same classifier is at chance (19.9%, threshold 20.8%) when the test participant is
 held out. On Nieto et al. 2022 (10 participants, four imagined words, three sessions) the same
-classifier is at chance within subject, across sessions and across participants. TODO: band
-ablation. We conclude that a small, person-specific effect is reliably detectable on one dataset,
-that it does not transfer across people or reappear on a second dataset with these methods, and that
-part of the within-subject effect may reflect phrase length or non-cortical sources rather than
-word identity.
+classifier is at chance within subject, across sessions and across participants. A frequency-band
+ablation locates the Track 3 effect in the 30-40 Hz band (0.443 alone, above every wideband
+configuration), the range most exposed to muscle activity and one Track 3 cannot audit because it
+records no muscle channel. Euclidean Alignment does not lift cross-subject accuracy above chance.
+We conclude that a reliable, person-specific, task-locked effect is detectable on one dataset, that
+it does not transfer across people or reappear on a second dataset, and that its frequency profile
+and the phrase-length pattern together argue against reading it as decoded imagined-speech content.
 
 ## 1. Introduction
 
@@ -102,9 +104,39 @@ accuracies span 0.19-0.31, so the sub-1/k within-subject value is sampling noise
 classifier artefact. The cross-session result is the project's only measurement of day-to-day
 transfer, and it is at chance.
 
-### 4.4 Ablations
+### 4.4 Frequency-band ablation
 
-TODO (frequency bands; Euclidean Alignment; cropped training).
+One band at a time, Riemannian classifier, same protocols.
+
+| Band | Track 3 train -> val | Track 3 LOSO | Nieto within | Nieto cross-session | Nieto LOSO |
+|---|---|---|---|---|---|
+| 1-8 Hz | 0.311 | 0.208 | 0.233 | 0.246 | 0.268 |
+| 8-13 Hz | 0.291 | 0.197 | 0.251 | 0.275 | 0.230 |
+| 13-30 Hz | 0.403 | 0.201 | 0.234 | 0.270 | 0.259 |
+| **30-40 Hz** | **0.443** | 0.198 | 0.209 | 0.264 | 0.256 |
+| 0.5-30 Hz (ref.) | 0.415 | 0.199 | - | - | - |
+| 0.5-40 Hz (ref.) | 0.405 | - | 0.224 | 0.263 | 0.247 |
+
+Thresholds: 0.224 (Track 3 val), 0.208 (Track 3 LOSO), 0.265 (Nieto). On Track 3 accuracy rises
+monotonically with frequency and peaks in the highest band tested, which alone exceeds every
+wideband configuration. On Nieto no band reaches the threshold in any protocol.
+
+### 4.5 Euclidean Alignment
+
+| Dataset | Protocol | Baseline | +EA | Threshold |
+|---|---|---|---|---|
+| Track 3 | train -> val | 0.415 | 0.415 | 0.224 |
+| Track 3 | LOSO | 0.199 | 0.204 | 0.208 |
+| Nieto | within-subject | 0.224 | 0.224 | 0.265 |
+| Nieto | cross-session | 0.263 | 0.263 | 0.265 |
+| Nieto | LOSO | 0.247 | 0.237 | 0.265 |
+
+EA leaves within-subject accuracy unchanged and does not lift either dataset above chance across
+participants.
+
+### 4.6 Cropped training
+
+TODO.
 
 ## 5. Discussion
 
@@ -112,12 +144,26 @@ TODO (frequency bands; Euclidean Alignment; cropped training).
 shuffle null and reproduces independently on validation and test, yet the same features carry no
 information across participants. The drop from 0.404 to 0.199 is the central finding.
 
-**What the within-subject signal might be.** Phrases of different length were recognised unequally
-("Help me" and "Thank you" best, "Stop" worst), consistent with the model detecting duration or
-rhythm rather than word identity. Cutting the band at 30 Hz did not reduce accuracy, so the
-30-40 Hz range (most exposed to facial muscle) is not the driver; the band ablation (TODO) locates
-the information more precisely. Track 3 has no muscle channel, so muscle contributions below 30 Hz
-cannot be excluded.
+**What the within-subject signal is, and is not.** The band ablation is the decisive result of this
+study, and it is unfavourable to a speech interpretation. Accuracy rises with frequency and peaks
+at 30-40 Hz (0.443), the band most exposed to facial, jaw and neck muscle activity, above every
+wideband configuration we ran. Cortical correlates of speech imagery are usually reported in lower
+bands; a profile that climbs into the EMG range is the signature of muscle contamination, and Track 3
+records no muscle channel with which to test or remove it. An earlier observation of ours pointed the
+same way: cutting the band at 30 Hz did not reduce accuracy, which we first read as reassurance, but
+the per-band results show the lower bands simply carry a weaker version of the same effect
+(0.31 and 0.29) rather than the whole of it.
+
+Phrase length points the same direction: "Help me" and "Thank you" were recognised best and "Stop"
+worst, consistent with a model detecting the duration or rhythm of an articulatory act rather than
+which word was imagined. We therefore report the Track 3 within-subject number as a reliable,
+person-specific, task-locked effect, and explicitly not as evidence that imagined-speech content was
+decoded.
+
+**Alignment does not transfer what is not shared.** Euclidean Alignment, which buys several points of
+cross-subject accuracy on motor imagery, changes nothing here (Track 3 LOSO 0.199 -> 0.204, still
+below threshold). Aligning coordinate frames can only help when a shared cross-subject pattern exists
+to align; the LOSO results indicate there is none.
 
 **Repeated cues.** Each cue was imagined four times and the public files do not identify which
 trials share a cue. If the official split places repetitions on both sides, test accuracy is

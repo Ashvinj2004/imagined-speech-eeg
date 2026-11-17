@@ -82,7 +82,7 @@ below 1/k is noise, not an artefact: predictions are spread evenly over the four
 | 1–8 Hz | 0.311 | 0.208 | 0.233 | 0.246 | 0.268 |
 | 8–13 Hz | 0.291 | 0.197 | 0.251 | 0.275 | 0.230 |
 | 13–30 Hz | 0.403 | 0.201 | 0.234 | 0.270 | 0.259 |
-| 30–40 Hz | **0.443** | 0.198 | pending | | |
+| 30–40 Hz | **0.443** | 0.198 | 0.209 | 0.264 | 0.256 |
 | 0.5–30 Hz (reference) | 0.415 | 0.199 | | | |
 | 0.5–40 Hz (reference) | 0.405 | | 0.224 | 0.263 | 0.247 |
 
@@ -101,10 +101,30 @@ below 1/k is noise, not an artefact: predictions are spread evenly over the four
   cross-session 0.275, 1–8 Hz LOSO 0.268) are 2 of 12 cells within 0.01 of a 5% threshold, i.e. what
   chance produces; without a shuffle test we treat them as noise.
 
-### Euclidean Alignment and cropped training
+### Euclidean Alignment
 
-Pending: the first attempt ran out of memory (another application held most of the laptop's RAM);
-rerun with the memory fix in `e8c6cb0`.
+Per-subject covariance whitening, fitted on the training fold; for an unseen participant the
+reference comes from their own unlabelled trials (unsupervised calibration).
+
+| Dataset | Protocol | Without EA | With EA | Threshold |
+|---|---|---|---|---|
+| Track 3 | train → val | 0.415 | 0.415 | 0.224 |
+| Track 3 | LOSO | 0.199 | 0.204 | 0.208 |
+| Nieto | within-subject | 0.224 | 0.224 | 0.265 |
+| Nieto | cross-session | 0.263 | 0.263 | 0.265 |
+| Nieto | LOSO | 0.247 | 0.237 | 0.265 |
+
+**EA does not help here.** Within subject it changes nothing, which is expected: whitening by a
+subject's own mean is close to a no-op when every trial comes from that same subject. Cross-subject
+it moves Track 3 from 0.199 to 0.204, still below the 0.208 threshold, and moves Nieto's LOSO down.
+The published claim that EA buys several points of cross-subject accuracy does not reproduce on
+imagined speech; it was developed on motor imagery, where a shared cross-subject pattern exists to
+align. Here there is no shared signal to align, so aligning the coordinate frames cannot create one.
+
+### Cropped training
+
+Running: 1 s windows every 0.5 s (4 crops per Nieto trial, 5 per Track 3 trial), with all crops of a
+trial kept on one side of every split and voted per trial at test time.
 
 ### Open questions
 

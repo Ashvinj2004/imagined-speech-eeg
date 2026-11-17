@@ -40,3 +40,11 @@ Any acc > 0.90 on 3+ classes must not be logged until leakage has been ruled out
 | 2026-11-17 | 80db923 | nieto2022-inner | riemann; notch=None bp=13.0-30.0 reref=None fs=256 variant=band13-30 | loso | 0 | 2236 | 0.259 | 0.265 |
 | 2026-11-17 | 80db923 | bci2020_track3 | riemann; notch=60.0 bp=30.0-40.0 reref=average fs=256 variant=band30-40 | predefined_val | 0 | 750 | 0.443 | 0.224 |
 | 2026-11-17 | 80db923 | bci2020_track3 | riemann; notch=60.0 bp=30.0-40.0 reref=average fs=256 variant=band30-40 | loso | 0 | 6000 | 0.198 | 0.208 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=30.0-40.0 reref=None fs=256 variant=band30-40 | within_subject | 0 | 2236 | 0.209 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=30.0-40.0 reref=None fs=256 variant=band30-40 | cross_session | 0 | 2236 | 0.264 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann; notch=None bp=30.0-40.0 reref=None fs=256 variant=band30-40 | loso | 0 | 2236 | 0.256 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann_ea; notch=None bp=0.5-40.0 reref=None fs=256 variant=ea | within_subject | 0 | 2236 | 0.224 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann_ea; notch=None bp=0.5-40.0 reref=None fs=256 variant=ea | cross_session | 0 | 2236 | 0.263 | 0.265 |
+| 2026-11-17 | b2311d0 | nieto2022-inner | riemann_ea; notch=None bp=0.5-40.0 reref=None fs=256 variant=ea | loso | 0 | 2236 | 0.237 | 0.265 |
+| 2026-11-17 | b2311d0 | bci2020_track3 | riemann_ea; notch=60.0 bp=0.5-30.0 reref=average fs=256 variant=ea | predefined_val | 0 | 750 | 0.415 | 0.224 |
+| 2026-11-17 | b2311d0 | bci2020_track3 | riemann_ea; notch=60.0 bp=0.5-30.0 reref=average fs=256 variant=ea | loso | 0 | 6000 | 0.204 | 0.208 |

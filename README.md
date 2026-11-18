@@ -23,8 +23,10 @@ python scripts/check_env.py      # compare this output across all four laptops
 
 **Windows Smart App Control / Application Control:** if imports fail with
 `DLL load failed ... An Application Control policy has blocked this file`, Windows is blocking a
-compiled package. We pin `pillow==11.3.0` in `requirements.lock` because newer builds were blocked on
-one team machine. `torch` may also be blocked, which stops `braindecode` (the neural-network models); the only
+compiled package. We pin `pillow==11.3.0` and `matplotlib==3.9.2` in `requirements.lock` for exactly
+this reason: newer builds of both are blocked, and because `pyriemann` imports `matplotlib.pyplot`
+at module level, a blocked matplotlib makes the Riemannian model unimportable. Install from
+`requirements.lock`, not `requirements.txt`, if you hit this. `torch` may also be blocked, which stops `braindecode` (the neural-network models); the only
 fixes are allowing it in Windows Security or running the project inside WSL2.
 
 ## Repo layout

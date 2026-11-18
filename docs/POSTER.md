@@ -20,13 +20,17 @@ Team names · course · date · repository QR code
 - **Table 1:** Track 3 official split: majority 0.200, EEGNet 0.257, ShallowConvNet 0.285,
   Riemannian 0.404 (threshold 0.224; shuffle p = 0.0099).
 - **Figure 2:** the drop: within-subject 0.404 -> LOSO 0.199 on the same data (two bars, chance band).
-- **Table 2:** Nieto within-subject / cross-session / LOSO (TODO from log).
+- **Table 2:** Nieto, all three protocols: 0.224 / 0.263 / 0.247, every cell below the 0.265 threshold.
 - **Figure 3:** confusion matrix, Track 3 (`confusion_predefined.png`): "Help me"/"Thank you" best, "Stop" worst.
 
 ## Column 3: what it means
 - **Finding 1:** a real, person-specific effect: ~40% on five phrases, far above the shuffle null.
-- **Finding 2:** it does not transfer across people: chance under LOSO, with or without alignment (TODO).
-- **Finding 3:** where the signal lives: frequency-band ablation (TODO), 30-40 Hz not needed.
+- **Finding 2:** it does not transfer across people: 0.199 under LOSO (threshold 0.208), and Euclidean
+  Alignment does not rescue it (0.204).
+- **Finding 3, the uncomfortable one:** accuracy *rises* with frequency and peaks at 30-40 Hz
+  (0.443 alone, above every wideband setting) — the band most exposed to jaw and face muscle, which
+  Track 3 cannot audit because it records no muscle channel. Cropping to 1 s windows costs 2.8 points,
+  and longer phrases are recognised best. Three signs pointing the same way (use `fig2_bands.png`).
 - **Caveats, stated plainly:** phrase length may drive part of the effect; no muscle channel in
   Track 3; repeated cues not identifiable in the public files.
 - **Why the 82.6% competition score is not a target:** not reproduced by us or by two re-analyses.

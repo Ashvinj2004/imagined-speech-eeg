@@ -12,10 +12,6 @@ import datetime as dt
 import subprocess
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
@@ -27,10 +23,25 @@ LOG_PATH = ROOT / "results" / "LOG.md"
 LOG_COLUMNS = ["date", "commit", "dataset", "config", "protocol", "seed", "n_test", "acc", "chance threshold"]
 
 
+def _plt():
+    """Import matplotlib only when something is actually drawn.
+
+    Scoring and logging must not depend on a plotting library: on Windows with Smart App Control
+    enabled, matplotlib's font DLL is blocked, and a module-level import would take the whole
+    evaluation harness down with it."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    return plt
+
+
 def plot_confusion(preds: pd.DataFrame, class_names: list[str], title: str, path: Path) -> np.ndarray:
     """Row-normalised confusion matrix (each row sums to 1). Returns the raw count matrix."""
     cm = confusion_matrix(preds["y_true"], preds["y_pred"], labels=range(len(class_names)))
     frac = cm / cm.sum(axis=1, keepdims=True).clip(min=1)
+    plt = _plt()
     fig, ax = plt.subplots(figsize=(5.5, 4.8))
     im = ax.imshow(frac, cmap="Blues", vmin=0, vmax=1)
     for i in range(len(class_names)):
@@ -54,6 +65,7 @@ def plot_per_subject(preds: pd.DataFrame, n_classes: int, title: str, path: Path
     tab = pd.DataFrame({"n_test": g.size(), "acc": g.mean()})
     tab["chance_threshold"] = [chance_threshold(int(n), n_classes, alpha) for n in tab["n_test"]]
     tab["above_chance"] = tab["acc"] > tab["chance_threshold"]
+    plt = _plt()
     fig, ax = plt.subplots(figsize=(max(5, 0.45 * len(tab) + 2), 4))
     x = np.arange(len(tab))
     ax.bar(x, tab["acc"], color=np.where(tab["above_chance"], "#1f6feb", "#9aa4b1"))
@@ -71,6 +83,7 @@ def plot_per_subject(preds: pd.DataFrame, n_classes: int, title: str, path: Path
 
 def plot_null(observed: float, null: np.ndarray, p: float, title: str, path: Path) -> None:
     """Histogram of shuffled-label accuracies with the real accuracy marked."""
+    plt = _plt()
     fig, ax = plt.subplots(figsize=(6, 3.6))
     ax.hist(null, bins=30, color="#9aa4b1")
     ax.axvline(observed, color="#1f6feb", lw=2, label=f"real labels: {observed:.3f}")

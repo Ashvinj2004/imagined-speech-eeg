@@ -58,7 +58,13 @@ def test_log_row_format(tmp_path):
     assert len(log.read_text(encoding="utf-8").splitlines()) == 4  # header, separator, two rows
 
 
+@pytest.mark.skipif(
+    not __import__("importlib.util", fromlist=["util"]).find_spec("matplotlib"),
+    reason="matplotlib not installed",
+)
 def test_figures_are_written(tmp_path, split_ds):
+    pytest.importorskip("matplotlib.pyplot",
+                        reason="matplotlib cannot load (e.g. Windows Smart App Control blocks its font DLL)")
     _, preds = evaluate(majority, split_ds, ["predefined_val"], return_predictions=True)
     cm = plot_confusion(preds, split_ds.class_names, "t", tmp_path / "cm.png")
     assert cm.sum() == len(preds) and (tmp_path / "cm.png").stat().st_size > 0
@@ -66,9 +72,17 @@ def test_figures_are_written(tmp_path, split_ds):
     assert len(tab) == len(np.unique(split_ds.subject)) and (tmp_path / "ps.png").exists()
 
 
-def test_deep_wrapper_is_deterministic_and_maps_labels():
+def test_deep_wrapper_is_deterministic_and_maps_labels(request):
     pytest.importorskip("braindecode")
     from bci.models.deep import BraindecodeClassifier
+
+    import torch
+
+    # One thread: multithreaded CPU reductions sum in a non-deterministic order, and the resulting
+    # float differences can flip a borderline argmax. Without this the test is flaky.
+    threads = torch.get_num_threads()
+    torch.set_num_threads(1)
+    request.addfinalizer(lambda: torch.set_num_threads(threads))
 
     rng = np.random.default_rng(0)
     X = rng.standard_normal((40, 8, 128)).astype(np.float32)

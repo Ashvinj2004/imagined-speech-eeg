@@ -10,8 +10,19 @@ numpy 2.4.6, scipy 1.17.1, pandas 3.0.6, scikit-learn 1.9.1, mne 1.13.2, pyriema
 torch 2.11.0+cpu, torchaudio 2.11.0, braindecode 1.8.1, moabb 1.7.2, pillow 11.3.0.
 
 `torch` and `torchaudio` must share a version; braindecode imports torchaudio, whose last release is
-2.11.0. Pillow is pinned at 11.3.0 because Windows Smart App Control blocked newer builds on one
-team machine. All runs were on CPU (no CUDA GPU available).
+2.11.0. All runs were on CPU (no CUDA GPU available).
+
+**Windows Smart App Control.** Two packages are pinned below their latest release because Smart App
+Control blocks their unsigned compiled libraries: **pillow 11.3.0** and **matplotlib 3.9.2**. The
+matplotlib pin is not optional for this project: `pyriemann` imports `matplotlib.pyplot` at module
+level, so a blocked matplotlib makes the Riemannian model — the project's main classifier —
+unimportable. Symptom: `ImportError: DLL load failed while importing ft2font`.
+
+**Reproducibility of the neural-network runs.** Seeds fix initialisation, the inner train/validation
+split and batch order, but multithreaded CPU reductions in torch sum in a non-deterministic order.
+The resulting float differences can flip a borderline prediction, so EEGNet and ShallowConvNet
+accuracies reproduce to within roughly one trial rather than bit-for-bit, unless `torch.set_num_threads(1)`
+is set (which the determinism test does). The Riemannian results are unaffected.
 
 ## Preprocessing (`src/bci/preprocess.py`)
 

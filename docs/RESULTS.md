@@ -32,8 +32,10 @@ Pooled chance threshold for n = 750: **0.224** (1/k = 0.200). Per-subject thresh
 - It is **higher than the ~0.31–0.33** that re-analysis reports for band-power models on this corpus.
   Plausible reasons: a different feature set (full covariance vs band power) and a different protocol
   (official split vs their 5-fold and held-out-block designs). Not yet explained; see open questions.
-- Cutting the band at 30 Hz instead of 40 Hz did not lower accuracy (0.415 vs 0.405 on validation), so the
-  30–40 Hz range, where facial muscle activity is strongest, is not what drives the score.
+- Cutting the band at 30 Hz instead of 40 Hz did not lower accuracy (0.415 vs 0.405 on validation).
+  **We first read this as reassurance that muscle activity was not driving the score. That reading was
+  wrong**, and the Sprint 4 band ablation below corrects it: the lower bands carry a weaker version of
+  the same effect, so removing the top band costs little, while 30–40 Hz *alone* scores highest of all.
 - The competition's 82.6% is not a reproducible target: the review does not say which split it was
   measured on, and later re-analyses did not reproduce it.
 
@@ -159,4 +161,7 @@ by far the most expensive run in the project, for a result that reduced accuracy
 3. **Repeated cues.** Each cue was imagined four times in a row and the public files do not say which
    trials share a cue. If the organisers' split keeps repetitions of one cue on both sides, test accuracy
    may be optimistic. We cannot check this from the public data.
-4. **Cross-subject (LOSO)** has not been run yet; the re-analyses report chance level.
+4. **Cross-subject (LOSO).** Answered: at chance on both datasets, with and without Euclidean
+   Alignment, matching the re-analyses. What remains open is *why* — whether imagined speech has no
+   shared cross-person representation at this signal-to-noise ratio, or whether 15 and 10 participants
+   are simply too few to find one.
